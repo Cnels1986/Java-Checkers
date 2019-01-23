@@ -13,8 +13,8 @@ class Checkers{
   public static int col = 0;
   // will store current player
   public static boolean player;
+  public static boolean quit = false;
 
-  // =================================================
   // =================================================
 
   public static void main(String []args){
@@ -47,17 +47,14 @@ class Checkers{
 
     Scanner scan = new Scanner(System.in);
     String coordinate = null;
-    // int row = 0;
-    // int col = 0;
     boolean movePiece = false;
-
-    // will track if selected piece is movables
-    boolean canMovePiece = false;
+    boolean canMovePiece = false;    // will track if selected piece is movables
+    String movement = null;
 
     clearScreen();
     printBoard(board, row, col);
 
-    while(victory != true){
+    while(victory != true && quit != true){
       if(player == false)
         System.out.println("\nPlayer 1's Turn (b/B)");
       else
@@ -68,21 +65,21 @@ class Checkers{
 
       //checks if the user enters coordinates on the board
       if(coordinate.equals("Exit") || coordinate.equals("exit")){
-        victory = true;
+        quit = true;
       }
       else{
         boolean goodCoordinate = checkCoordinate(coordinate, board);
         if(goodCoordinate == true){
           row = Character.getNumericValue(coordinate.charAt(0))-1;
           col = Character.getNumericValue(coordinate.charAt(2))-1;
-          if((board[row][col] == 1 /*|| board[row][col] == 3*/) && player == false){
+          if((board[row][col] == 1 /*|| board[row][col] == 3*/) && player == false && isItMovable(row,col,board) == true){
             movePiece = true;
           }
-          else if((board[row][col] == 2 /*&& board[row][col] == 4*/) && player == true){
+          else if((board[row][col] == 2 /*&& board[row][col] == 4*/) && player == true  && isItMovable(row,col,board) == true){
             movePiece = true;
           }
           else{
-            System.out.println("\n*** NOT YOUR PIECE, REENTER COORDINATE***");
+            System.out.println("\n*** NOT YOUR PIECE OR PIECE IS UNMOVABLE ***");
             movePiece = false;
           }
         }
@@ -90,48 +87,105 @@ class Checkers{
           System.out.println("\n*** INVALID COORDINATE, PLEASE REENTER ***");
           movePiece = false;
         }
-      }
-      if(movePiece == true){
-        printBoard(board, row, col);
-        System.out.println(isThereAMove(row,col,board));
+
+        if(movePiece == true){
+          printBoard(board, row, col);
+          System.out.print("\nEnter the direction you would like to move your piece:\nl=left\nr=right\nMmultiple moves can be entered if moves are legal (ie: llr -> left, left, right)\nMovement:  ");
+          movement = scan.nextLine();
+          movement = movement.toLowerCase();
+          if(movement.equals("Exit") || movement.equals("exit"))
+            quit = true;
+          else if(movement.contains("l") || movement.contains("r")){
+            boolean move = movePiece(board, movement);
+            System.out.println(move);
+            // while(move == false){
+            //   System.out.println("*** Cannot move that direction ***");
+            //   movement = scan.nextLine();
+            //   movement = movement.toLowerCase();
+            //   move = movePiece(board, movement);
+            // }
+            printBoard(board, 0, 0);
+          }
+        }
       }
     }
     clearScreen();
   }
 
-
-
-  // // function will check the selected coordinates and player and determine if the piece can be moved
-  // public static boolean movablePiece(int[][] board){
-  //   int piece = board[row][col];
-  //   int newRow;
-  //   int newColLeft = col-1;
-  //   int newColRight = col+1;
-  //   // checks if the columns to the left and right are within the matrix
-  //   if((newColLeft >= 0 && newColLeft <= 7) || (newColRight >= 0 && newColRight <= 7)){
-  //     switch(piece):
-  //       case 1:   //black piece
-  //         newRow = row+1;
-  //         break;
-  //       case 2:   //red piece
-  //         newRow = row-1;
-  //         break;
-  //       case 3:   //black king
-  //         break;
-  //       case 4:   //red king
-  //         break;
-  //   }
-  //   return true;
-  // }
-
-  // =================================================
   // =================================================
 
-  // public static boolean isItMovable(){
-  //
-  // }
+  public static boolean movePiece(int[][] board, String m){
+    boolean move = true;
+    boolean badMove = false;
+    int piece = board[row][col];
+    while(move == true){
+      for(int i=0 ; i<m.length(); i++){
+        //black
+        if(piece == 1){
+          // move left
+          if(m.charAt(i) == 'l' && col-1 >= 0){
+            if(board[row+1][col-1] == 0){
+              board[row+1][col-1] = 1;
+              board[row][col] = 0;
+              row = row+1;
+              col = col-1;
+              return true;
+            }
+          }
+          else
+            return false;
+          // move right
+          if(m.charAt(i) == 'r' && col+1 <= 7){
+            if(board[row+1][col+1] == 0){
+              board[row+1][col+1] = 1;
+              board[row][col] = 0;
+              row = row+1;
+              col = col+1;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+        //red
+        else if(piece == 2){
+          // move left
+          if(m.charAt(i) == 'l' && col-1 >= 0){
+            if(board[row-1][col-1] == 0){
+              board[row-1][col-1] = 2;
+              board[row][col] = 0;
+              row = row-1;
+              col = col-1;
+              return true;
+            }
+          }
+          else
+            return false;
+          // move right
+          if(m.charAt(i) == 'r' && col+1 <= 7){
+            if(board[row-1][col+1] == 0){
+              board[row-1][col+1] = 2;
+              board[row][col] = 0;
+              row = row-1;
+              col = col+1;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+      }
+      move = false;
+    }
+    return false;
+  }
 
   // =================================================
+
+  public static boolean isItMovable(int r, int c,int[][] board){
+    return isThereAMove(r,c,board);
+  }
+
   // =================================================
 
   // function will check is there is a possible move
@@ -142,7 +196,7 @@ class Checkers{
     int rowDown = r+1;
     int colLeft = c-1;
     int colRight = c+1;
-
+    // normal pieces
     if(piece == 1 || piece == 2){
       // black pieces, moving down
       if(player == false){
@@ -157,7 +211,7 @@ class Checkers{
           // checks if the move right is within range of the matrix
           if(colRight <= 7){
             // checks if new spot is empty
-            if(board[rowDown][colLeft] == 0)
+            if(board[rowDown][colRight] == 0)
               return true;
           }
         }
@@ -191,14 +245,12 @@ class Checkers{
   }
 
   // =================================================
-  // =================================================
 
   // function will check is there is a possible jump
   // public static boolean isThereAJump(){
   //
   // }
 
-  // =================================================
   // =================================================
 
   // function will turn the piece into a king, changing its movements
@@ -207,14 +259,13 @@ class Checkers{
   // }
 
   // =================================================
-  // =================================================
 
+  //function clears screen so the build can be displayed at the top at all times
   public static void clearScreen(){
     //Clears console before displaying anything
     System.out.print("\033[H\033[2J");
   }
 
-  // =================================================
   // =================================================
 
   // Function takes the matrix that represents the board and prints it out
@@ -273,7 +324,6 @@ class Checkers{
     System.out.println("   -----------------------------------------------------------------");
   }
 
-  // =================================================
   // =================================================
 
   // function checks the coordinates entered to make sure there is a piece at that location

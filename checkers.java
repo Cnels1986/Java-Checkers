@@ -32,7 +32,7 @@ class Checkers{
                     {2,0,2,0,2,0,2,0},
                     {0,2,0,2,0,2,0,2},
                     {2,0,2,0,2,0,2,0}
-                  };
+                    };
 
     boolean victory = false;
     // gets either 1 or 2 at random to see which player has the first turn
@@ -48,64 +48,24 @@ class Checkers{
     Scanner scan = new Scanner(System.in);
     String coordinate = null;
     boolean movePiece = false;
-    boolean canMovePiece = false;    // will track if selected piece is movables
-    String movement = null;
 
     clearScreen();
     printBoard(board, row, col);
-
     while(victory != true && quit != true){
-      if(player == false)
-        System.out.println("\nPlayer 1's Turn (b/B)");
-      else
-        System.out.println("\nPlayer 2's Turn (r/R)");
-
-      System.out.print("\nEnter the coordinates for the piece you wish to move. Enter exit to quit.\nExample = row,col : ");
-      coordinate = scan.nextLine();
+      printPlayer();
+      coordinate = getCoordinates();
 
       //checks if the user enters coordinates on the board
       if(coordinate.equals("Exit") || coordinate.equals("exit")){
         quit = true;
       }
       else{
-        boolean goodCoordinate = checkCoordinate(coordinate, board);
-        if(goodCoordinate == true){
-          row = Character.getNumericValue(coordinate.charAt(0))-1;
-          col = Character.getNumericValue(coordinate.charAt(2))-1;
-          if((board[row][col] == 1 /*|| board[row][col] == 3*/) && player == false && isItMovable(row,col,board) == true){
-            movePiece = true;
-          }
-          else if((board[row][col] == 2 /*&& board[row][col] == 4*/) && player == true  && isItMovable(row,col,board) == true){
-            movePiece = true;
-          }
-          else{
-            System.out.println("\n*** NOT YOUR PIECE OR PIECE IS UNMOVABLE ***");
-            movePiece = false;
-          }
-        }
-        else{
-          System.out.println("\n*** INVALID COORDINATE, PLEASE REENTER ***");
-          movePiece = false;
-        }
-
+        movePiece = verifyCoordinates(coordinate, board);
         if(movePiece == true){
           printBoard(board, row, col);
-          System.out.print("\nEnter the direction you would like to move your piece:\nl=left\nr=right\nMmultiple moves can be entered if moves are legal (ie: llr -> left, left, right)\nMovement:  ");
-          movement = scan.nextLine();
-          movement = movement.toLowerCase();
-          if(movement.equals("Exit") || movement.equals("exit"))
-            quit = true;
-          else if(movement.contains("l") || movement.contains("r")){
-            boolean move = movePiece(board, movement);
-            System.out.println(move);
-            // while(move == false){
-            //   System.out.println("*** Cannot move that direction ***");
-            //   movement = scan.nextLine();
-            //   movement = movement.toLowerCase();
-            //   move = movePiece(board, movement);
-            // }
-            printBoard(board, 0, 0);
-          }
+          getDirection(board);
+          player = !player;
+          printBoard(board, 0, 0);
         }
       }
     }
@@ -132,11 +92,10 @@ class Checkers{
               return true;
             }
           }
-          else
-            return false;
           // move right
-          if(m.charAt(i) == 'r' && col+1 <= 7){
+          else if(m.charAt(i) == 'r' && col+1 <= 7){
             if(board[row+1][col+1] == 0){
+              System.out.println("TEST!!!!!!!!");
               board[row+1][col+1] = 1;
               board[row][col] = 0;
               row = row+1;
@@ -159,10 +118,8 @@ class Checkers{
               return true;
             }
           }
-          else
-            return false;
           // move right
-          if(m.charAt(i) == 'r' && col+1 <= 7){
+          else if(m.charAt(i) == 'r' && col+1 <= 7){
             if(board[row-1][col+1] == 0){
               board[row-1][col+1] = 2;
               board[row][col] = 0;
@@ -182,8 +139,78 @@ class Checkers{
 
   // =================================================
 
+  public static void getDirection(int[][] board){
+    String movement = null;
+    Scanner scan = new Scanner(System.in);
+
+    System.out.print("\nEnter the direction you would like to move your piece:\nl=left\nr=right\nMultiple moves can be entered if moves are legal (ie: llr -> left, left, right)\nMovement:  ");
+
+    movement = scan.nextLine();
+    movement = movement.toLowerCase();
+
+    if(movement.equals("Exit") || movement.equals("exit")){
+      quit = true;
+      // return false;
+    }
+    else if(movement.contains("l") || movement.contains("r")){
+      boolean move = movePiece(board, movement);
+      while(move == false){
+        System.out.print("\n*** Cannot move that direction ***\nPlease reenter (l/r): ");
+        movement = scan.nextLine();
+        movement = movement.toLowerCase();
+        move = movePiece(board, movement);
+      }
+    }
+  }
+
+  // =================================================
+
   public static boolean isItMovable(int r, int c,int[][] board){
     return isThereAMove(r,c,board);
+  }
+
+  // =================================================
+
+  public static boolean verifyCoordinates(String coordinate, int[][] board){
+    boolean goodCoordinate = checkCoordinate(coordinate, board);
+    if(goodCoordinate == true){
+      row = Character.getNumericValue(coordinate.charAt(0))-1;
+      col = Character.getNumericValue(coordinate.charAt(2))-1;
+      if((board[row][col] == 1 /*|| board[row][col] == 3*/) && player == false && isItMovable(row,col,board) == true){
+        return true;
+      }
+      else if((board[row][col] == 2 /*&& board[row][col] == 4*/) && player == true  && isItMovable(row,col,board) == true){
+        return true;
+      }
+      else{
+        System.out.println("\n*** NOT YOUR PIECE OR PIECE IS UNMOVABLE ***");
+        return false;
+      }
+    }
+    else{
+      System.out.println("\n*** INVALID COORDINATE, PLEASE REENTER ***");
+      return false;
+    }
+  }
+
+  // =================================================
+
+  // function gets input from the user for the coordinates
+  public static String getCoordinates(){
+    Scanner scan = new Scanner(System.in);
+    System.out.print("\nEnter the coordinates for the piece you wish to move. Enter exit to quit.\nExample = row,col : ");
+    String coordinate = scan.nextLine();
+    return coordinate;
+  }
+
+  // =================================================
+
+  // function just prints which player's turn it is
+  public static void printPlayer(){
+    if(player == false)
+      System.out.println("\nPlayer 1's Turn (b/B)");
+    else
+      System.out.println("\nPlayer 2's Turn (r/R)");
   }
 
   // =================================================

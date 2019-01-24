@@ -23,16 +23,27 @@ class Checkers{
     //2 = red piece
     //3 = black king
     //4 = red king
+    // int[][] board = {
+    //                 {0,1,0,1,0,1,0,1},
+    //                 {1,0,1,0,1,0,1,0},
+    //                 {0,1,0,1,0,1,0,1},
+    //                 {0,0,0,0,0,0,0,0},
+    //                 {0,0,0,0,0,0,0,0},
+    //                 {2,0,2,0,2,0,2,0},
+    //                 {0,2,0,2,0,2,0,2},
+    //                 {2,0,2,0,2,0,2,0}
+    //                 };
     int[][] board = {
                     {0,1,0,1,0,1,0,1},
-                    {1,0,1,0,1,0,1,0},
-                    {0,1,0,1,0,1,0,1},
-                    {0,0,0,0,0,0,0,0},
+                    {1,0,1,0,1,0,2,0},
+                    {0,1,0,1,0,0,0,1},
+                    {0,0,0,0,1,0,0,0},
                     {0,0,0,0,0,0,0,0},
                     {2,0,2,0,2,0,2,0},
                     {0,2,0,2,0,2,0,2},
                     {2,0,2,0,2,0,2,0}
                     };
+
 
     boolean victory = false;
     // gets either 1 or 2 at random to see which player has the first turn
@@ -91,16 +102,23 @@ class Checkers{
               col = col-1;
               return true;
             }
+            else if(board[row+1][col-1] == 2){
+              boolean jump = jump(board, row, col, 'l');
+              return jump;
+            }
           }
           // move right
           else if(m.charAt(i) == 'r' && col+1 <= 7){
             if(board[row+1][col+1] == 0){
-              System.out.println("TEST!!!!!!!!");
               board[row+1][col+1] = 1;
               board[row][col] = 0;
               row = row+1;
               col = col+1;
               return true;
+            }
+            else if(board[row+1][col+1] == 2){
+              boolean jump = jump(board, row, col, 'r');
+              return jump;
             }
           }
           else
@@ -117,6 +135,10 @@ class Checkers{
               col = col-1;
               return true;
             }
+            else if(board[row-1][col-1] == 1){
+              boolean jump = jump(board, row, col, '1');
+              return jump;
+            }
           }
           // move right
           else if(m.charAt(i) == 'r' && col+1 <= 7){
@@ -126,6 +148,10 @@ class Checkers{
               row = row-1;
               col = col+1;
               return true;
+            }
+            else if(board[row-1][col+1] == 1){
+              boolean jump = jump(board, row, col, 'r');
+              return jump;
             }
           }
           else
@@ -139,26 +165,29 @@ class Checkers{
 
   // =================================================
 
+  // function gets the users input on what direction they want to more their piece l-left or r-right. Hopefully will be able to string multiple moves together later i.e.: llr left, left, right
   public static void getDirection(int[][] board){
     String movement = null;
     Scanner scan = new Scanner(System.in);
+    boolean goodInput = false;
 
-    System.out.print("\nEnter the direction you would like to move your piece:\nl=left\nr=right\nMultiple moves can be entered if moves are legal (ie: llr -> left, left, right)\nMovement:  ");
+    while(goodInput == false){
+      System.out.print("\nEnter the direction you would like to move your piece:\nl=left\nr=right\nMultiple moves can be entered if moves are legal (ie: llr -> left, left, right)\nMovement:  ");
 
-    movement = scan.nextLine();
-    movement = movement.toLowerCase();
+      movement = scan.nextLine();
+      movement = movement.toLowerCase();
 
-    if(movement.equals("Exit") || movement.equals("exit")){
-      quit = true;
-      // return false;
-    }
-    else if(movement.contains("l") || movement.contains("r")){
-      boolean move = movePiece(board, movement);
-      while(move == false){
-        System.out.print("\n*** Cannot move that direction ***\nPlease reenter (l/r): ");
-        movement = scan.nextLine();
-        movement = movement.toLowerCase();
-        move = movePiece(board, movement);
+      if(movement.equals("Exit") || movement.equals("exit"))
+        quit = true;
+      else if(movement.contains("l") || movement.contains("r")){
+        boolean move = movePiece(board, movement);
+        while(move == false){
+          System.out.print("\n*** Cannot move that direction ***\nPlease reenter (l/r): ");
+          movement = scan.nextLine();
+          movement = movement.toLowerCase();
+          move = movePiece(board, movement);
+        }
+        goodInput = true;
       }
     }
   }
@@ -166,7 +195,40 @@ class Checkers{
   // =================================================
 
   public static boolean isItMovable(int r, int c,int[][] board){
-    return isThereAMove(r,c,board);
+    boolean move = isThereAMove(r,c,board);
+    boolean jump = false;
+    int piece = board[r][c];
+    // king pieces
+    if(piece == 3 || piece == 4){
+      jump = true;
+    }
+    // normal black, down
+    else if(player == false){
+      if(r+2 <= 7){
+        if(c-2 >= 0){
+          if(board[r+1][c-1] == 2 && board[r+2][c-2] == 0)
+            jump = true;
+        }
+        if(c+2 <= 7){
+          if(board[r+1][c+1] == 2 && board[r+2][c+2] == 0)
+            jump = true;
+        }
+      }
+    }
+    // normal red, up
+    else if(player == true){
+      if(r-2 >= 0){
+        if(c-2 >= 0){
+          if(board[r-1][c-1] == 1 && board[r-2][c-2] == 0)
+            jump = true;
+        }
+        if(c+2 <= 7){
+          if(board[r-1][c+1] == 1 && board[r-2][c+2] == 0)
+            jump = true;
+        }
+      }
+    }
+    return (jump || move);
   }
 
   // =================================================
@@ -274,9 +336,114 @@ class Checkers{
   // =================================================
 
   // function will check is there is a possible jump
-  // public static boolean isThereAJump(){
-  //
-  // }
+  public static boolean jump(int[][] board, int r, int c, char direction){
+    int piece = board[r][c];
+    // potential coordinates for other player's pieces
+    int rowUp = r-1;
+    int rowDown = r+1;
+    int colLeft = c-1;
+    int colRight = c+1;
+    // potential coordinates for piece to jump to
+    int jumpUp = r-2;
+    int jumpDown = r+2;
+    int jumpLeft = c-2;
+    int jumpRight = c+2;
+
+    // normal pieces
+    if(piece == 1 || piece == 2){
+      // left moves
+      if(direction == 'l'){
+        // black left
+        if(player == false){
+          if(jumpDown <= 7 && jumpLeft >=0){
+            // if there's an opponants piece and the jump space is empty
+            if(board[rowDown][colLeft] == 2 && board[jumpDown][jumpLeft] == 0){
+                board[rowDown][colLeft] = 0;
+                board[jumpDown][jumpLeft] = 1;
+                board[r][c] = 0;
+                row = jumpDown;
+                col = jumpLeft;
+                return true;
+            }
+          }
+          else
+            return false;
+        }
+        // red left
+        else{
+          if(jumpUp >= 0 && jumpLeft >= 0){
+            if(board[rowUp][colLeft] == 1 && board[jumpUp][jumpLeft] == 0){
+              board[rowUp][colLeft] = 0;
+              board[jumpUp][jumpLeft] = 2;
+              board[r][c] = 0;
+              row = jumpUp;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+      }
+      else if(direction == 'r'){
+        // black right
+        if(player == false){
+          if(jumpDown <= 7 && jumpRight <= 7){
+            if(board[rowDown][colRight] == 2 && board[jumpDown][jumpRight] == 0){
+                board[rowDown][colRight] = 0;
+                board[jumpDown][jumpRight] = 1;
+                board[r][c] = 0;
+                row = jumpDown;
+                col = jumpLeft;
+                return true;
+            }
+          }
+          else
+            return false;
+        }
+        // red right
+        else{
+          if(jumpUp >= 0 && jumpRight <= 7){
+            if(board[rowUp][colRight] == 1 && board[jumpUp][jumpRight] == 0){
+              board[rowUp][colRight] = 0;
+              board[jumpUp][jumpRight] = 2;
+              board[r][c] = 0;
+              row = jumpUp;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+      }
+    }
+    // king pieces
+    // else if(piece == 3 || piece == 4){
+    //
+    // }
+    return false;
+  }
+
+  // =================================================
+
+  // function will scan the board/matrix to see if a player has been eliminated
+  public static boolean checkForVictory(int[][] board){
+    int red = 0;
+    int black = 0;
+    for(int a=0 ; a<=7; a++){
+      for(int b=0; b<=7; b++){
+        if(board[a][b] == 1 || board[a][b] == 3)
+          black++;
+        else if(board[a][b] == 2 || board[a][b] == 4)
+          red++;
+      }
+    }
+    if(red > 0 && black >0)
+      return false;
+    else
+      return true;
+  }
 
   // =================================================
 
@@ -340,6 +507,7 @@ class Checkers{
       }
       // new line
       System.out.print("|\n");
+      // System.out.print("|  " + a +"\n");
       if(a != 7){
         System.out.println("   |       |       |       |       |       |       |       |       |");
         System.out.println("   -----------------------------------------------------------------");
@@ -349,6 +517,7 @@ class Checkers{
     // prints the bottom border
     System.out.println("   |       |       |       |       |       |       |       |       |");
     System.out.println("   -----------------------------------------------------------------");
+    // System.out.println("       1       2       3       4       5       6       7       8    ");
   }
 
   // =================================================

@@ -45,15 +45,14 @@ class Checkers{
     //                 };
     int[][] board = {
                     {0,0,0,0,0,0,0,0},
-                    {0,2,0,0,0,0,0,0},
-                    {1,0,2,0,3,0,4,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,1,0,0,0,0,0,0},
+                    {0,0,2,0,2,0,0,0},
+                    {0,0,0,3,0,0,0,0},
+                    {0,0,4,0,2,0,0,0},
+                    {0,0,0,0,1,0,1,0},
+                    {0,0,2,0,0,4,0,0},
+                    {0,0,0,0,1,0,1,0},
                     {0,0,0,0,0,0,0,0}
                     };
-
 
     boolean victory = false;
     // gets either 1 or 2 at random to see which player has the first turn
@@ -65,7 +64,6 @@ class Checkers{
       player = false;
     else
       player = true;
-
     Scanner scan = new Scanner(System.in);
     String coordinate = null;
     boolean movePiece = false;
@@ -75,11 +73,9 @@ class Checkers{
     while(victory != true && quit != true){
       printPlayer();
       coordinate = getCoordinates();
-
       //checks if the user enters coordinates on the board
-      if(coordinate.equals("Exit") || coordinate.equals("exit")){
+      if(coordinate.equals("Exit") || coordinate.equals("exit"))
         quit = true;
-      }
       else{
         movePiece = verifyCoordinates(coordinate, board);
         if(movePiece == true){
@@ -97,12 +93,8 @@ class Checkers{
   // =================================================
 
   public static boolean movePiece(int[][] board, String m){
-    boolean move = true;
-    boolean badMove = false;
-
     boolean jump = false;   //tracks if a jump happened
     int piece = board[row][col];
-
 
     // normal pieces
     if(piece == 1 || piece ==2){
@@ -112,14 +104,10 @@ class Checkers{
         if(m.charAt(i) == 'l' && col-1 >= 0){
           if(piece == 1){
             // checks for the jump first
-            if(board[row+1][col-1] == 2){
+            if(board[row+1][col-1] == 2 || board[row+1][col-1] == 4)
               jump = jump(board,row,col,'l');
-              // printBoard(board,row,col);
-              // System.out.println("black - left");
-            }
             // checks for an empty spot, if move is possible it will break and end the loop
             else if(board[row+1][col-1] == 0){
-              System.out.print("===Test==");
               board[row+1][col-1] = 1;
               board[row][col] = 0;
               row = row+1;
@@ -131,11 +119,8 @@ class Checkers{
             }
           }
           else if(piece == 2){
-            if(board[row-1][col-1] == 1){
+            if(board[row-1][col-1] == 1 || board[row-1][col-1] == 3)
               jump = jump(board,row,col,'l');
-              // printBoard(board,row,col);
-              // System.out.println("red - left");
-            }
             else if(board[row-1][col-1] == 0){
               board[row-1][col-1] = 2;
               board[row][col] = 0;
@@ -150,11 +135,8 @@ class Checkers{
         // right moves
         else if(m.charAt(i) == 'r' && col+1 <= 7){
           if(piece == 1){
-            if(board[row+1][col+1] == 2){
+            if(board[row+1][col+1] == 2 || board[row+1][col+1] == 4)
               jump = jump(board,row,col,'r');
-              // printBoard(board,row,col);
-              // System.out.println("black - right");
-            }
             else if(board[row+1][col+1] == 0){
               board[row+1][col+1] = 1;
               board[row][col] = 0;
@@ -166,11 +148,8 @@ class Checkers{
             }
           }
           else if(piece == 2){
-            if(board[row-1][col+1] == 1){
+            if(board[row-1][col+1] == 1 || board[row-1][col+1] == 3)
               jump = jump(board,row,col,'r');
-              // printBoard(board,row,col);
-              // System.out.println("red - right");
-            }
             else if(board[row-1][col+1] == 0){
               board[row-1][col+1] = 2;
               board[row][col] = 0;
@@ -186,84 +165,78 @@ class Checkers{
     }
     // king pieces
     else if(piece == 3 || piece == 4){
-
+      for(int i=0 ; i<m.length(); i++){
+        // up right
+        if(m.charAt(i) == '2' && row-1 >= 0 && col+1 <= 7){
+          // king jump
+          if(board[row-1][col+1] != 0){
+            // black king
+            if(piece == 3 && (board[row-1][col+1] == 2 || board[row-1][col+1] == 4))
+              jump = jump(board,row,col,'2');
+            // red king
+            else if(piece == 4 && (board[row-1][col+1] == 1 || board[row-1][col+1] == 3))
+              jump = jump(board,row,col,'2');
+          }
+          // king normal move
+          else if(board[row-1][col+1] == 0){
+            board[row-1][col+1] = piece;
+            board[row][col] = 0;
+            row = row-1;
+            col = col+1;
+            return true;
+          }
+        }
+        // down right
+        else if(m.charAt(i) == '4' && row+1 <= 7 && col+1 <= 7){
+          if(board[row+1][col+1] != 0){
+            if(piece == 3 && (board[row+1][col+1] == 2 || board[row+1][col+1] == 4))
+              jump = jump(board,row,col,'4');
+            else if(piece == 4 && (board[row+1][col+1] == 1 || board[row+1][col+1] == 3))
+              jump = jump(board,row,col,'4');
+          }
+          else if(board[row+1][col+1] == 0){
+            board[row+1][col+1] = piece;
+            board[row][col] = 0;
+            row = row+1;
+            col = col+1;
+            return true;
+          }
+        }
+        // up left
+        else if(m.charAt(i) == '1' && row-1 >= 0 && col-1 >= 0){
+          if(board[row-1][col-1] != 0){
+            if(piece == 3 && (board[row-1][col-1] == 2 || board[row-1][col-1] == 4))
+              jump = jump(board,row,col,'1');
+            else if(piece == 4 && (board[row-1][col-1] == 1 || board[row-1][col-1] == 3))
+              jump = jump(board,row,col,'1');
+          }
+          else if(board[row-1][col-1] == 0){
+            board[row-1][col-1] = piece;
+            board[row][col] = 0;
+            row = row-1;
+            col = col-1;
+            return true;
+          }
+        }
+        // down left
+        else if(m.charAt(i) == '3' && row+1 <= 7 && col-1 >= 0){
+          if(board[row+1][col-1] != 0){
+            if(piece == 3 && (board[row+1][col-1] == 2 || board[row+1][col-1] == 4))
+              jump = jump(board,row,col,'3');
+            else if(piece == 4 && (board[row+1][col-1] == 1 || board[row+1][col-1] == 3))
+              jump = jump(board,row,col,'3');
+          }
+          else if(board[row+1][col-1] == 0){
+            board[row+1][col-1] = piece;
+            board[row][col] = 0;
+            row = row+1;
+            col = col-1;
+            return true;
+          }
+        }
+      }
     }
     return jump;
-
-
-    // while(move == true){
-    //   for(int i=0 ; i<m.length(); i++){
-    //     //black
-    //     if(piece == 1){
-    //       // move left
-    //       if(m.charAt(i) == 'l' && col-1 >= 0){
-    //         if(board[row+1][col-1] == 0){
-    //           board[row+1][col-1] = 1;
-    //           board[row][col] = 0;
-    //           row = row+1;
-    //           col = col-1;
-    //           // return true;
-    //         }
-    //         else if(board[row+1][col-1] == 2){
-    //           boolean jump = jump(board, row, col, 'l');
-    //           // return jump;
-    //         }
-    //       }
-    //       // move right
-    //       else if(m.charAt(i) == 'r' && col+1 <= 7){
-    //         if(board[row+1][col+1] == 0){
-    //           board[row+1][col+1] = 1;
-    //           board[row][col] = 0;
-    //           row = row+1;
-    //           col = col+1;
-    //           return true;
-    //         }
-    //         else if(board[row+1][col+1] == 2){
-    //           boolean jump = jump(board, row, col, 'r');
-    //           // return jump;
-    //         }
-    //       }
-    //       else
-    //         // return false;
-    //     }
-    //     //red
-    //     else if(piece == 2){
-    //       // move left
-    //       if(m.charAt(i) == 'l' && col-1 >= 0){
-    //         if(board[row-1][col-1] == 0){
-    //           board[row-1][col-1] = 2;
-    //           board[row][col] = 0;
-    //           row = row-1;
-    //           col = col-1;
-    //           // return true;
-    //         }
-    //         else if(board[row-1][col-1] == 1){
-    //           boolean jump = jump(board, row, col, 'l');
-    //           System.out.println(jump);
-    //           // return jump;
-    //         }
-    //       }
-    //       // move right
-    //       else if(m.charAt(i) == 'r' && col+1 <= 7){
-    //         if(board[row-1][col+1] == 0){
-    //           board[row-1][col+1] = 2;
-    //           board[row][col] = 0;
-    //           row = row-1;
-    //           col = col+1;
-    //           // return true;
-    //         }
-    //         else if(board[row-1][col+1] == 1){
-    //           boolean jump = jump(board, row, col, 'r');
-    //           // return jump;
-    //         }
-    //       }
-    //       else
-    //         // return false;
-    //     }
-    //   }
-    //   move = false;
-    // }
-    // return false;
   }
 
   // =================================================
@@ -275,24 +248,52 @@ class Checkers{
     boolean goodInput = false;
 
     while(goodInput == false){
-      System.out.print("\nEnter the direction you would like to move your piece:\nl=left\nr=right\nMultiple moves can be entered if moves are legal (ie: llr -> left, left, right)\nMovement:  ");
-
-      movement = scan.nextLine();
-      movement = movement.toLowerCase();
-
-      if(movement.equals("Exit") || movement.equals("exit")){
-        quit = true;
-        break;
-      }
-      else if(movement.contains("l") || movement.contains("r")){
-        boolean move = movePiece(board, movement);
-        while(move == false){
-          System.out.print("\n*** Cannot move that direction ***\nPlease reenter (l/r): ");
-          movement = scan.nextLine();
-          movement = movement.toLowerCase();
-          move = movePiece(board, movement);
+      if(board[row][col] == 1 || board[row][col] == 2){
+        System.out.print("\n-- Type exit to quit --\n\nEnter the direction you would like to move/jump your piece:\nl=left\nr=right\nMultiple moves can be entered if jumps are available (ie: llr -> left, left, right)\nMovement:  ");
+        movement = scan.nextLine();
+        movement = movement.toLowerCase();
+        if(movement.equals("exit")){
+          quit = true;
+          break;
         }
-        goodInput = true;
+        else if(movement.contains("l") || movement.contains("r")){
+          boolean move = movePiece(board, movement);
+          while(move == false){
+            System.out.print("\n*** Cannot move that direction ***\nPlease reenter (l/r): ");
+            movement = scan.nextLine();
+            movement = movement.toLowerCase();
+            if(movement.equals("exit")){
+              quit = true;
+              break;
+            }
+            else move = movePiece(board, movement);
+          }
+          goodInput = true;
+        }
+      }
+      else if(board[row][col] == 3 || board[row][col] == 4){
+        System.out.println("\n-- Type exit to quit --\n\nEnter the direction you would like to move/jump your piece:\n1 = up left\n2 = up right\n3 = down left\n4 = down right\nMultiple moves can be entered if jumps are available (ie: 1142 -> up right, up right, down left, down right)\nMovement: ");
+        movement = scan.nextLine();
+        movement = movement.toLowerCase();
+        if(movement.equals("exit")){
+          quit = true;
+          break;
+        }
+        else if(movement.contains("1") || movement.contains("2") || movement.contains("3") || movement.contains("4")){
+          boolean move = movePiece(board, movement);
+          while(move == false){
+            System.out.print("\n*** Cannot move that direction ***\nPlease reenter (1|2|3|4): ");
+            movement = scan.nextLine();
+            movement = movement.toLowerCase();
+            if(movement.equals("exit")){
+              quit = true;
+              break;
+            }
+            else
+              move = movePiece(board, movement);
+          }
+          goodInput = true;
+        }
       }
     }
   }
@@ -306,17 +307,50 @@ class Checkers{
     int piece = board[r][c];
     // king pieces
     if(piece == 3 || piece == 4){
-      jump = true;
+      if(r+2 <= 7){
+        // down left
+        if(col-2 >= 0){
+          // black king
+          if((board[r+1][c-1] == 2 || board[r+1][c-1] == 4) && piece == 3 && (board[r+2][c-2] == 0))
+            jump = true;
+          // red king
+          if((board[r+1][c-1] == 1 || board[r+1][c-1] == 3) && piece == 4 && (board[r+2][c-2] == 0))
+            jump = true;
+        }
+        // down right
+        if(col+2 <= 0){
+          if((board[r+1][c+1] == 2 || board[r+1][c+1] == 4) && piece == 3 && (board[r+2][c+2] == 0))
+            jump = true;
+          if((board[r+1][c+1] == 1 || board[r+1][c+1] == 3) && piece == 4 && (board[r+2][c+2] == 0))
+            jump = true;
+        }
+      }
+      if(r-2 >= 0){
+        // up left
+        if(col-2 >= 0){
+          if((board[r-1][c-1] == 2 || board[r-1][c-1] == 4) && piece == 3 && (board[r-2][c-2] == 0))
+            jump = true;
+          if((board[r-1][c-1] == 1 || board[r-1][c-1] == 3) && piece == 4 && (board[r-2][c-2] == 0))
+            jump = true;
+        }
+        // up right
+        if(col+2 <= 0){
+          if((board[r-1][c+1] == 2 || board[r-1][c+1] == 4) && piece == 3 && (board[r-2][c+2] == 0))
+            jump = true;
+          if((board[r-1][c+1] == 1 || board[r-1][c+1] == 3) && piece == 4 && (board[r-2][c+2] == 0))
+            jump = true;
+        }
+      }
     }
     // normal black, down
     else if(player == false){
       if(r+2 <= 7){
         if(c-2 >= 0){
-          if(board[r+1][c-1] == 2 && board[r+2][c-2] == 0)
+          if((board[r+1][c-1] == 2 || board[r+1][c-1] == 4) && board[r+2][c-2] == 0)
             jump = true;
         }
         if(c+2 <= 7){
-          if(board[r+1][c+1] == 2 && board[r+2][c+2] == 0)
+          if((board[r+1][c+1] == 2 || board[r+1][c+1] == 4 )&& board[r+2][c+2] == 0)
             jump = true;
         }
       }
@@ -325,11 +359,11 @@ class Checkers{
     else if(player == true){
       if(r-2 >= 0){
         if(c-2 >= 0){
-          if(board[r-1][c-1] == 1 && board[r-2][c-2] == 0)
+          if((board[r-1][c-1] == 1 || board[r-1][c-1] == 3 ) && board[r-2][c-2] == 0)
             jump = true;
         }
         if(c+2 <= 7){
-          if(board[r-1][c+1] == 1 && board[r-2][c+2] == 0)
+          if((board[r-1][c+1] == 1 || board[r-1][c+1] == 3 ) && board[r-2][c+2] == 0)
             jump = true;
         }
       }
@@ -426,18 +460,30 @@ class Checkers{
         }
       }
     }
+    // // king pieces, can move all directions
+    else if(piece == 3 || piece == 4){
+      if(rowUp >= 0){
+        if(colLeft >= 0){
+          if(board[rowUp][colLeft] == 0)
+            return true;
+        }
+        if(colRight <= 7){
+          if(board[rowUp][colRight] == 0)
+            return true;
+        }
+      }
+      if(rowDown <= 7){
+        if(colLeft >= 0){
+          if(board[rowDown][colLeft] == 0)
+            return true;
+        }
+        if(colRight <= 7){
+          if(board[rowDown][colRight] == 0)
+            return true;
+        }
+      }
+    }
     return false;
-    // // king pieces
-    // else if(piece == 3 || piece == 4){
-    //   // black kings
-    //   if(player == false){
-    //
-    //   }
-    //   // red kings
-    //   else{
-    //
-    //   }
-    // }
   }
 
   // =================================================
@@ -464,7 +510,7 @@ class Checkers{
         if(player == false){
           if(jumpDown <= 7 && jumpLeft >=0){
             // if there's an opponants piece and the jump space is empty
-            if(board[rowDown][colLeft] == 2 && board[jumpDown][jumpLeft] == 0){
+            if((board[rowDown][colLeft] == 2 || board[rowDown][colLeft] == 4) && board[jumpDown][jumpLeft] == 0){
                 board[rowDown][colLeft] = 0;
                 board[jumpDown][jumpLeft] = 1;
                 board[r][c] = 0;
@@ -479,7 +525,7 @@ class Checkers{
         // red left
         else{
           if(jumpUp >= 0 && jumpLeft >= 0){
-            if(board[rowUp][colLeft] == 1 && board[jumpUp][jumpLeft] == 0){
+            if((board[rowUp][colLeft] == 1 || board[rowUp][colLeft] == 3) && board[jumpUp][jumpLeft] == 0){
               board[rowUp][colLeft] = 0;
               board[jumpUp][jumpLeft] = 2;
               board[r][c] = 0;
@@ -488,16 +534,15 @@ class Checkers{
               return true;
             }
           }
-          else{
+          else
             return false;
-          }
         }
       }
       else if(direction == 'r'){
         // black right
         if(player == false){
           if(jumpDown <= 7 && jumpRight <= 7){
-            if(board[rowDown][colRight] == 2 && board[jumpDown][jumpRight] == 0){
+            if((board[rowDown][colRight] == 2 || board[rowDown][colRight] == 4) && board[jumpDown][jumpRight] == 0){
                 board[rowDown][colRight] = 0;
                 board[jumpDown][jumpRight] = 1;
                 board[r][c] = 0;
@@ -512,7 +557,7 @@ class Checkers{
         // red right
         else{
           if(jumpUp >= 0 && jumpRight <= 7){
-            if(board[rowUp][colRight] == 1 && board[jumpUp][jumpRight] == 0){
+            if((board[rowUp][colRight] == 1 || board[rowUp][colRight] ==3 ) && board[jumpUp][jumpRight] == 0){
               board[rowUp][colRight] = 0;
               board[jumpUp][jumpRight] = 2;
               board[r][c] = 0;
@@ -527,9 +572,132 @@ class Checkers{
       }
     }
     // king pieces
-    // else if(piece == 3 || piece == 4){
-    //
-    // }
+    else if(piece == 3 || piece == 4){
+      if(piece == 3){
+        // up left
+        if(direction == '1'){
+          if(jumpUp >= 0 && jumpLeft >= 0){
+            if((board[rowUp][colLeft] == 2 || board[rowUp][colLeft] == 4) && board[jumpUp][jumpLeft] == 0){
+              board[rowUp][colLeft] = 0;
+              board[jumpUp][jumpLeft] = 3;
+              board[r][c] = 0;
+              row = jumpUp;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+        // up right
+        else if(direction == '2'){
+          if(jumpUp >= 0 && jumpRight <= 7){
+            if((board[rowUp][colRight] == 2 || board[rowUp][colRight] == 4) && board[jumpUp][jumpRight] == 0){
+              board[rowUp][colRight] = 0;
+              board[jumpUp][jumpRight] = 3;
+              board[r][c] = 0;
+              row = jumpUp;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+        // down left
+        else if(direction == '3'){
+          if(jumpDown <= 7 && jumpLeft >= 0){
+            if((board[rowDown][colLeft] == 2 || board[rowDown][colLeft] == 4) && board[jumpDown][jumpLeft] == 0){
+              board[rowDown][colLeft] = 0;
+              board[jumpDown][jumpLeft] = 3;
+              board[r][c] = 0;
+              row = jumpDown;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+        // down right
+        else if(direction == '4'){
+          if(jumpDown <= 7 && jumpRight <= 7){
+            if((board[rowDown][colRight] == 2 || board[rowDown][colRight] == 4) && board[jumpDown][jumpRight] == 0){
+              board[rowDown][colRight] = 0;
+              board[jumpDown][jumpRight] = 3;
+              board[r][c] = 0;
+              row = jumpDown;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+      }
+      else if(piece == 4){
+        // up left
+        if(direction == '1'){
+          if(jumpUp >= 0 && jumpLeft >= 0){
+            if((board[rowUp][colLeft] == 1 || board[rowUp][colLeft] == 3) && board[jumpUp][jumpLeft] == 0){
+              board[rowUp][colLeft] = 0;
+              board[jumpUp][jumpLeft] = 4;
+              board[r][c] = 0;
+              row = jumpUp;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+        // up right
+        else if(direction == '2'){
+          if(jumpUp >= 0 && jumpRight <= 7){
+            if((board[rowUp][colRight] == 1 || board[rowUp][colRight] == 3) && board[jumpUp][jumpRight] == 0){
+              board[rowUp][colRight] = 0;
+              board[jumpUp][jumpRight] = 4;
+              board[r][c] = 0;
+              row = jumpUp;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+        // down left
+        else if(direction == '3'){
+          if(jumpDown <= 7 && jumpLeft >= 0){
+            if((board[rowDown][colLeft] == 1 || board[rowDown][colLeft] == 3) && board[jumpDown][jumpLeft] == 0){
+              board[rowDown][colLeft] = 0;
+              board[jumpDown][jumpLeft] = 4;
+              board[r][c] = 0;
+              row = jumpDown;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+        // down right
+        else if(direction == '4'){
+          if(jumpDown <= 7 && jumpRight <= 7){
+            if((board[rowDown][colRight] == 1 || board[rowDown][colRight] == 3) && board[jumpDown][jumpRight] == 0){
+              board[rowDown][colRight] = 0;
+              board[jumpDown][jumpRight] = 4;
+              board[r][c] = 0;
+              row = jumpDown;
+              col = jumpLeft;
+              return true;
+            }
+          }
+          else
+            return false;
+        }
+      }
+    }
     return false;
   }
 
@@ -547,8 +715,6 @@ class Checkers{
           red++;
       }
     }
-    // System.out.println("Black pieces: " + black);
-    // System.out.println("Red pieces: " + red);
     if(red > 0 && black >0)
       return false;
     else

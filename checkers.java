@@ -46,8 +46,8 @@ class Checkers{
     int[][] board = {
                     {0,0,0,0,0,0,0,0},
                     {0,0,0,0,0,0,0,0},
-                    {0,0,0,1,0,0,0,0},
-                    {0,0,0,0,2,0,0,0},
+                    {0,0,0,3,0,0,0,0},
+                    {0,0,0,0,4,0,0,0},
                     {0,0,0,0,0,0,0,0},
                     {0,0,0,0,0,0,0,0},
                     {0,0,0,0,0,0,0,0},
@@ -96,7 +96,6 @@ class Checkers{
         }
         // new game, board is reset
         if(answer.charAt(0) == '1'){
-          System.out.println("Test");
           newGame = true;
           selectPlayer();
           board = newBoard;
@@ -115,7 +114,6 @@ class Checkers{
     clearScreen();
   }
 
-
   // =================================================
 
   public static boolean movePiece(int[][] board, String m){
@@ -133,7 +131,7 @@ class Checkers{
             if(board[row+1][col-1] == 2 || board[row+1][col-1] == 4)
               jump = jump(board,row,col,'l');
             // checks for an empty spot, if move is possible it will break and end the loop
-            else if(board[row+1][col-1] == 0){
+            else if(board[row+1][col-1] == 0 && jump == false){
               board[row+1][col-1] = 1;
               board[row][col] = 0;
               row = row+1;
@@ -147,7 +145,7 @@ class Checkers{
           else if(piece == 2){
             if(board[row-1][col-1] == 1 || board[row-1][col-1] == 3)
               jump = jump(board,row,col,'l');
-            else if(board[row-1][col-1] == 0){
+            else if(board[row-1][col-1] == 0 && jump == false){
               board[row-1][col-1] = 2;
               board[row][col] = 0;
               row = row-1;
@@ -163,7 +161,7 @@ class Checkers{
           if(piece == 1){
             if(board[row+1][col+1] == 2 || board[row+1][col+1] == 4)
               jump = jump(board,row,col,'r');
-            else if(board[row+1][col+1] == 0){
+            else if(board[row+1][col+1] == 0 && jump == false){
               board[row+1][col+1] = 1;
               board[row][col] = 0;
               row = row+1;
@@ -176,7 +174,7 @@ class Checkers{
           else if(piece == 2){
             if(board[row-1][col+1] == 1 || board[row-1][col+1] == 3)
               jump = jump(board,row,col,'r');
-            else if(board[row-1][col+1] == 0){
+            else if(board[row-1][col+1] == 0 && jump == false){
               board[row-1][col+1] = 2;
               board[row][col] = 0;
               row = row-1;
@@ -204,7 +202,7 @@ class Checkers{
               jump = jump(board,row,col,'2');
           }
           // king normal move
-          else if(board[row-1][col+1] == 0){
+          else if(board[row-1][col+1] == 0 && jump == false){
             board[row-1][col+1] = piece;
             board[row][col] = 0;
             row = row-1;
@@ -222,7 +220,7 @@ class Checkers{
             else if(piece == 4 && (board[row+1][col+1] == 1 || board[row+1][col+1] == 3))
               jump = jump(board,row,col,'4');
           }
-          else if(board[row+1][col+1] == 0){
+          else if(board[row+1][col+1] == 0 && jump == false){
             board[row+1][col+1] = piece;
             board[row][col] = 0;
             row = row+1;
@@ -238,7 +236,7 @@ class Checkers{
             else if(piece == 4 && (board[row-1][col-1] == 1 || board[row-1][col-1] == 3))
               jump = jump(board,row,col,'1');
           }
-          else if(board[row-1][col-1] == 0){
+          else if(board[row-1][col-1] == 0 && jump == false){
             board[row-1][col-1] = piece;
             board[row][col] = 0;
             row = row-1;
@@ -254,7 +252,7 @@ class Checkers{
             else if(piece == 4 && (board[row+1][col-1] == 1 || board[row+1][col-1] == 3))
               jump = jump(board,row,col,'3');
           }
-          else if(board[row+1][col-1] == 0){
+          else if(board[row+1][col-1] == 0 && jump == false){
             board[row+1][col-1] = piece;
             board[row][col] = 0;
             row = row+1;
@@ -651,7 +649,6 @@ class Checkers{
         else if(direction == '4'){
           if(jumpDown <= 7 && jumpRight <= 7){
             if((board[rowDown][colRight] == 2 || board[rowDown][colRight] == 4) && board[jumpDown][jumpRight] == 0){
-              System.out.println("HERE");
               board[rowDown][colRight] = 0;
               board[jumpDown][jumpRight] = 3;
               board[r][c] = 0;

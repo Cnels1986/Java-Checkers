@@ -8,11 +8,11 @@ import java.util.Scanner;
 
 class Checkers{
 
-  // global variables that will store the current selected coordinates
+  // global variables that will store the current selected coordinates and player
   public static int row = 0;
   public static int col = 0;
-  // will store current player
   public static boolean player;
+
   public static boolean quit = false;
 
   // =================================================
@@ -23,16 +23,16 @@ class Checkers{
     //2 = red piece
     //3 = black king
     //4 = red king
-    // int[][] board = {
-    //                 {0,1,0,1,0,1,0,1},
-    //                 {1,0,1,0,1,0,1,0},
-    //                 {0,1,0,1,0,1,0,1},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {2,0,2,0,2,0,2,0},
-    //                 {0,2,0,2,0,2,0,2},
-    //                 {2,0,2,0,2,0,2,0}
-    //                 };
+    int[][] newBoard = {
+                    {0,1,0,1,0,1,0,1},
+                    {1,0,1,0,1,0,1,0},
+                    {0,1,0,1,0,1,0,1},
+                    {0,0,0,0,0,0,0,0},
+                    {0,0,0,0,0,0,0,0},
+                    {2,0,2,0,2,0,2,0},
+                    {0,2,0,2,0,2,0,2},
+                    {2,0,2,0,2,0,2,0}
+                    };
     // int[][] board = {
     //                 {0,0,0,0,0,0,0,0},
     //                 {0,0,0,0,0,0,0,0},
@@ -45,50 +45,76 @@ class Checkers{
     //                 };
     int[][] board = {
                     {0,0,0,0,0,0,0,0},
-                    {0,0,2,0,2,0,0,0},
-                    {0,0,0,3,0,0,0,0},
-                    {0,0,4,0,2,0,0,0},
-                    {0,0,0,0,1,0,1,0},
-                    {0,0,2,0,0,4,0,0},
-                    {0,0,0,0,1,0,1,0},
+                    {0,0,0,0,0,0,0,0},
+                    {0,0,0,1,0,0,0,0},
+                    {0,0,0,0,2,0,0,0},
+                    {0,0,0,0,0,0,0,0},
+                    {0,0,0,0,0,0,0,0},
+                    {0,0,0,0,0,0,0,0},
                     {0,0,0,0,0,0,0,0}
                     };
 
     boolean victory = false;
-    // gets either 1 or 2 at random to see which player has the first turn
-    int random = (Math.random() <= 0.5) ? 1 : 2;
-    //will track which player's turn it is, alternating once complete
-    //false = player 1, black
-    //true = player 2, red
-    if(random == 1)
-      player = false;
-    else
-      player = true;
+    boolean newGame = false;
     Scanner scan = new Scanner(System.in);
     String coordinate = null;
     boolean movePiece = false;
 
-    clearScreen();
-    printBoard(board, row, col);
-    while(victory != true && quit != true){
-      printPlayer();
-      coordinate = getCoordinates();
-      //checks if the user enters coordinates on the board
-      if(coordinate.equals("Exit") || coordinate.equals("exit"))
-        quit = true;
-      else{
-        movePiece = verifyCoordinates(coordinate, board);
-        if(movePiece == true){
-          printBoard(board, row, col);
-          getDirection(board);
-          player = !player;
-          printBoard(board, 0, 0);
-          checkForVictory(board);
+    do{
+      // intial functions to start the game: clears screen, randomly selects a player, prints initial board
+      clearScreen();
+      selectPlayer();
+      printBoard(board, row, col);
+      while(victory != true && quit != true){
+        printPlayer();
+        coordinate = getCoordinates();
+        //checks if the user enters coordinates on the board
+        if(coordinate.equals("Exit") || coordinate.equals("exit")){
+          quit = true;
+          newGame = false;
+          break;
+        }
+        else{
+          movePiece = verifyCoordinates(coordinate, board);
+          if(movePiece == true){
+            printBoard(board, row, col);
+            getDirection(board);
+            player = !player;
+            printBoard(board, 0, 0);
+            victory = checkForVictory(board);
+          }
         }
       }
-    }
+      if(quit != true){
+        System.out.print("\nDo you want to play another game?\n1 - new game\n2 - quit\n");
+        boolean validAnswer = false;
+        String answer = null;
+        while(validAnswer == false){
+          answer = scan.nextLine();
+          if(answer.charAt(0) == '1' || answer.charAt(0) == '2')
+            validAnswer = true;
+        }
+        // new game, board is reset
+        if(answer.charAt(0) == '1'){
+          System.out.println("Test");
+          newGame = true;
+          selectPlayer();
+          board = newBoard;
+          victory = false;
+          row = 0;
+          col = 0;
+        }
+        else if(answer.charAt(0) == '2')
+          newGame = false;
+      }
+      else{
+        newGame = false;
+        quit = true;
+      }
+    } while(newGame == true && quit == false);
     clearScreen();
   }
+
 
   // =================================================
 
@@ -189,8 +215,10 @@ class Checkers{
         // down right
         else if(m.charAt(i) == '4' && row+1 <= 7 && col+1 <= 7){
           if(board[row+1][col+1] != 0){
-            if(piece == 3 && (board[row+1][col+1] == 2 || board[row+1][col+1] == 4))
+            if(piece == 3 && (board[row+1][col+1] == 2 || board[row+1][col+1] == 4)){
+              System.out.println(row + " - " + col);
               jump = jump(board,row,col,'4');
+            }
             else if(piece == 4 && (board[row+1][col+1] == 1 || board[row+1][col+1] == 3))
               jump = jump(board,row,col,'4');
           }
@@ -623,11 +651,12 @@ class Checkers{
         else if(direction == '4'){
           if(jumpDown <= 7 && jumpRight <= 7){
             if((board[rowDown][colRight] == 2 || board[rowDown][colRight] == 4) && board[jumpDown][jumpRight] == 0){
+              System.out.println("HERE");
               board[rowDown][colRight] = 0;
               board[jumpDown][jumpRight] = 3;
               board[r][c] = 0;
               row = jumpDown;
-              col = jumpLeft;
+              col = jumpRight;
               return true;
             }
           }
@@ -689,7 +718,7 @@ class Checkers{
               board[jumpDown][jumpRight] = 4;
               board[r][c] = 0;
               row = jumpDown;
-              col = jumpLeft;
+              col = jumpRight;
               return true;
             }
           }
@@ -715,10 +744,17 @@ class Checkers{
           red++;
       }
     }
-    if(red > 0 && black >0)
-      return false;
+    if(red == 0 || black == 0){
+      if(red == 0){
+        System.out.println("\n*** Player 1 wins ***\n");
+      }
+      else if(black == 0){
+        System.out.println("\n**** Player 2 wins ***\n");
+      }
+        return true;
+    }
     else
-      return true;
+      return false;
   }
 
   // =================================================
@@ -823,5 +859,19 @@ class Checkers{
     }
     else
       return false;
+  }
+
+  // =================================================
+
+  public static void selectPlayer(){
+    // gets either 1 or 2 at random to see which player has the first turn
+    int random = (Math.random() <= 0.5) ? 1 : 2;
+    //will track which player's turn it is, alternating once complete
+    //false = player 1, black
+    //true = player 2, red
+    if(random == 1)
+      player = false;
+    else
+      player = true;
   }
 }

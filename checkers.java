@@ -5,6 +5,7 @@ Checkers
 */
 
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 class Checkers{
 
@@ -33,25 +34,26 @@ class Checkers{
                     {0,2,0,2,0,2,0,2},
                     {2,0,2,0,2,0,2,0}
                     };
+    // blank board to let me set up and test different moves and jumps
     // int[][] board = {
+    //                 {0,3,0,0,0,0,0,0},
+    //                 {0,0,4,0,0,0,4,0},
+    //                 {0,0,0,0,0,0,0,0},
+    //                 {0,0,0,0,2,0,2,0},
     //                 {0,0,0,0,0,0,0,0},
     //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0}
+    //                 {0,3,0,3,0,3,0,0},
+    //                 {4,0,4,0,0,0,0,0}
     //                 };
     int[][] board = {
+                    {0,1,0,1,0,1,0,1},
+                    {1,0,1,0,1,0,1,0},
+                    {0,1,0,1,0,1,0,1},
                     {0,0,0,0,0,0,0,0},
                     {0,0,0,0,0,0,0,0},
-                    {0,0,0,3,0,0,0,0},
-                    {0,0,0,0,4,0,0,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,0,0,0,0,0,0,0}
+                    {2,0,2,0,2,0,2,0},
+                    {0,2,0,2,0,2,0,2},
+                    {2,0,2,0,2,0,2,0}
                     };
 
     boolean victory = false;
@@ -185,6 +187,15 @@ class Checkers{
             }
           }
         }
+        printBoard(board, row, col);
+        try
+        {
+            Thread.sleep(500);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
       }
     }
     // king pieces
@@ -259,6 +270,15 @@ class Checkers{
             col = col-1;
             return true;
           }
+        }
+        printBoard(board, row, col);
+        try
+        {
+            Thread.sleep(500);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
         }
       }
     }
@@ -344,7 +364,7 @@ class Checkers{
             jump = true;
         }
         // down right
-        if(col+2 <= 0){
+        if(col+2 <= 7){
           if((board[r+1][c+1] == 2 || board[r+1][c+1] == 4) && piece == 3 && (board[r+2][c+2] == 0))
             jump = true;
           if((board[r+1][c+1] == 1 || board[r+1][c+1] == 3) && piece == 4 && (board[r+2][c+2] == 0))
@@ -360,11 +380,12 @@ class Checkers{
             jump = true;
         }
         // up right
-        if(col+2 <= 0){
+        if(col+2 <= 7){
           if((board[r-1][c+1] == 2 || board[r-1][c+1] == 4) && piece == 3 && (board[r-2][c+2] == 0))
             jump = true;
-          if((board[r-1][c+1] == 1 || board[r-1][c+1] == 3) && piece == 4 && (board[r-2][c+2] == 0))
+          if((board[r-1][c+1] == 1 || board[r-1][c+1] == 3) && piece == 4 && (board[r-2][c+2] == 0)){
             jump = true;
+          }
         }
       }
     }
@@ -408,7 +429,7 @@ class Checkers{
       if((board[row][col] == 1 || board[row][col] == 3) && player == false && isItMovable(row,col,board) == true){
         return true;
       }
-      else if((board[row][col] == 2 || board[row][col] == 4) && player == true  && isItMovable(row,col,board) == true){
+      else if((board[row][col] == 2 || board[row][col] == 4) && player == true && isItMovable(row,col,board) == true){
         return true;
       }
       else{
@@ -437,9 +458,9 @@ class Checkers{
   // function just prints which player's turn it is
   public static void printPlayer(){
     if(player == false)
-      System.out.println("\nPlayer 1's Turn (b/B)");
+      System.out.println("\nPlayer 1's Turn (b/-B-) - down");
     else
-      System.out.println("\nPlayer 2's Turn (r/R)");
+      System.out.println("\nPlayer 2's Turn (r/-R-) - up");
   }
 
   // =================================================
@@ -542,6 +563,8 @@ class Checkers{
                 board[r][c] = 0;
                 row = jumpDown;
                 col = jumpLeft;
+                if(row == 7)
+                  board[row][col] = 3;
                 return true;
             }
           }
@@ -557,6 +580,8 @@ class Checkers{
               board[r][c] = 0;
               row = jumpUp;
               col = jumpLeft;
+              if(row == 0)
+                board[row][col] = 4;
               return true;
             }
           }
@@ -574,6 +599,8 @@ class Checkers{
                 board[r][c] = 0;
                 row = jumpDown;
                 col = jumpRight;
+                if(row == 7)
+                  board[row][col] = 3;
                 return true;
             }
           }
@@ -589,6 +616,8 @@ class Checkers{
               board[r][c] = 0;
               row = jumpUp;
               col = jumpRight;
+              if(row == 0)
+                board[row][col] = 4;
               return true;
             }
           }
@@ -623,7 +652,7 @@ class Checkers{
               board[jumpUp][jumpRight] = 3;
               board[r][c] = 0;
               row = jumpUp;
-              col = jumpLeft;
+              col = jumpRight;
               return true;
             }
           }
@@ -685,7 +714,7 @@ class Checkers{
               board[jumpUp][jumpRight] = 4;
               board[r][c] = 0;
               row = jumpUp;
-              col = jumpLeft;
+              col = jumpRight;
               return true;
             }
           }

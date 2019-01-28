@@ -5,6 +5,7 @@ Checkers
 */
 
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 class Checkers{
 
@@ -33,26 +34,26 @@ class Checkers{
                     {0,2,0,2,0,2,0,2},
                     {2,0,2,0,2,0,2,0}
                     };
-    // int[][] board = {
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0},
-    //                 {0,0,0,0,0,0,0,0}
-    //                 };
     int[][] board = {
+                    {0,1,0,0,0,0,0,0},
+                    {0,0,0,0,0,0,1,0},
+                    {0,0,0,0,0,2,0,0},
                     {0,0,0,0,0,0,0,0},
                     {0,0,0,0,0,0,0,0},
-                    {0,0,0,3,0,0,0,0},
-                    {0,0,0,0,4,0,0,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,0,0,0,0,0,0,0},
-                    {0,0,0,0,0,0,0,0},
+                    {0,0,0,0,1,0,0,0},
+                    {0,0,0,0,0,2,0,0},
                     {0,0,0,0,0,0,0,0}
                     };
+    // int[][] board = {
+    //                 {0,1,0,1,0,1,0,1},
+    //                 {1,0,1,0,1,0,1,0},
+    //                 {0,1,0,1,0,1,0,1},
+    //                 {0,0,0,0,0,0,0,0},
+    //                 {0,0,0,0,0,0,0,0},
+    //                 {2,0,2,0,2,0,2,0},
+    //                 {0,2,0,2,0,2,0,2},
+    //                 {2,0,2,0,2,0,2,0}
+    //                 };
 
     boolean victory = false;
     boolean newGame = false;
@@ -184,6 +185,15 @@ class Checkers{
               return true;
             }
           }
+        }
+        printBoard(board, row, col);
+        try
+        {
+            Thread.sleep(1000);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
         }
       }
     }
@@ -437,9 +447,9 @@ class Checkers{
   // function just prints which player's turn it is
   public static void printPlayer(){
     if(player == false)
-      System.out.println("\nPlayer 1's Turn (b/B)");
+      System.out.println("\nPlayer 1's Turn (b/-B-)");
     else
-      System.out.println("\nPlayer 2's Turn (r/R)");
+      System.out.println("\nPlayer 2's Turn (r/-R-)");
   }
 
   // =================================================
@@ -542,6 +552,8 @@ class Checkers{
                 board[r][c] = 0;
                 row = jumpDown;
                 col = jumpLeft;
+                if(row == 7)
+                  board[row][col] = 3;
                 return true;
             }
           }
@@ -557,6 +569,8 @@ class Checkers{
               board[r][c] = 0;
               row = jumpUp;
               col = jumpLeft;
+              if(row == 0)
+                board[row][col] = 4;
               return true;
             }
           }
@@ -574,6 +588,8 @@ class Checkers{
                 board[r][c] = 0;
                 row = jumpDown;
                 col = jumpRight;
+                if(row == 7)
+                  board[row][col] = 3;
                 return true;
             }
           }
@@ -589,6 +605,8 @@ class Checkers{
               board[r][c] = 0;
               row = jumpUp;
               col = jumpRight;
+              if(row == 0)
+                board[row][col] = 4;
               return true;
             }
           }
